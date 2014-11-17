@@ -22,6 +22,7 @@ import com.google.common.collect.Lists;
 
 import java.util.Collection;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * Utility class that holds all the registered NetworkParameters types used for Address auto discovery.
@@ -30,6 +31,15 @@ import java.util.Set;
  * version/type code.
  */
 public class Networks {
+    public enum Family {
+        BITCOIN,
+        PEERCOIN,
+        REDDCOIN;
+    }
+
+    private static final Pattern peercoinFamily = Pattern.compile(".*(peercoin).*");
+    private static final Pattern reddcoinFamily = Pattern.compile(".*(reddcoin).*");
+
     /** Registered networks */
     private static Set<NetworkParameters> networks = ImmutableSet.of(TestNet3Params.get(), MainNetParams.get());
 
@@ -57,6 +67,29 @@ public class Networks {
                 builder.add(parameters);
             }
             networks = builder.build();
+        }
+    }
+
+    public static boolean isFamily(NetworkParameters network, Family family) {
+        return getFamily(network) == family;
+    }
+
+    public static boolean isFamily(NetworkParameters network, Family family1, Family family2) {
+        Family networkFamily = getFamily(network);
+        return networkFamily == family1 || networkFamily == family2;
+    }
+
+    public static Family getFamily(NetworkParameters network) {
+        if (network == null || network.getId() == null) {
+            return Family.BITCOIN; // default is Bitcoin
+        }
+
+        if (peercoinFamily.matcher(network.getId()).matches()) {
+            return Family.PEERCOIN;
+        } else if (reddcoinFamily.matcher(network.getId()).matches()) {
+            return Family.REDDCOIN;
+        } else {
+            return Family.BITCOIN; // everything else is Bitcoin
         }
     }
 }
