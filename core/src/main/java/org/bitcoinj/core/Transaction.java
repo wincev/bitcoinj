@@ -40,6 +40,7 @@ import java.util.*;
 import static org.bitcoinj.core.Utils.*;
 import static com.google.common.base.Preconditions.checkState;
 
+import static org.bitcoinj.params.Networks.Family.NUBITS;
 import static org.bitcoinj.params.Networks.Family.PEERCOIN;
 import static org.bitcoinj.params.Networks.Family.REDDCOIN;
 
@@ -108,6 +109,7 @@ public class Transaction extends ChildMessage implements Serializable {
     // These are serialized in both bitcoin and java serialization.
     private long version;
     private long txTime;
+    private byte txTokenId;
     private ArrayList<TransactionInput> inputs;
     private ArrayList<TransactionOutput> outputs;
 
@@ -184,9 +186,12 @@ public class Transaction extends ChildMessage implements Serializable {
         // We don't initialize appearsIn deliberately as it's only useful for transactions stored in the wallet.
         length = 8; // 8 for std fields
         Networks.Family txFamily = Networks.getFamily(params);
-        if (txFamily == PEERCOIN || (txFamily == REDDCOIN && version > 1)) {
+        if (txFamily == PEERCOIN || txFamily == NUBITS || (txFamily == REDDCOIN && version > 1)) {
             txTime = new Date().getTime() / 1000; // time is in seconds
             length += 4;
+        }
+        if (txFamily == NUBITS) {
+            txTokenId = params.getTokenId();
         }
     }
 
@@ -525,7 +530,7 @@ public class Transaction extends ChildMessage implements Serializable {
         // jump past version (uint32)
         int cursor = offset + 4;
 
-        if (Networks.isFamily(params, PEERCOIN))
+        if (Networks.isFamily(params, PEERCOIN, NUBITS))
             cursor += 4; // time (uint32)
 
         int i;
@@ -561,6 +566,9 @@ public class Transaction extends ChildMessage implements Serializable {
         if (Networks.isFamily(params, REDDCOIN) && version > 1)
             cursor += 4; // time (uint32)
 
+        if (Networks.isFamily(params, NUBITS))
+            cursor += 1; // token id
+
         return cursor - offset;
     }
 
@@ -575,7 +583,7 @@ public class Transaction extends ChildMessage implements Serializable {
         version = readUint32();
         optimalEncodingMessageSize = 4;
 
-        if (Networks.isFamily(params, PEERCOIN)) {
+        if (Networks.isFamily(params, PEERCOIN, NUBITS)) {
             txTime = readUint32();
             optimalEncodingMessageSize = +4;
         }
@@ -610,6 +618,11 @@ public class Transaction extends ChildMessage implements Serializable {
             optimalEncodingMessageSize = +4;
         }
 
+        if (Networks.isFamily(params, NUBITS)) {
+            txTokenId = readBytes(1)[0];
+            optimalEncodingMessageSize++;
+        }
+
         length = cursor - offset;
     }
 
@@ -635,7 +648,7 @@ public class Transaction extends ChildMessage implements Serializable {
     }
 
     public boolean isCoinStake() {
-        if (Networks.isFamily(params, PEERCOIN, REDDCOIN)) {
+        if (Networks.isFamily(params, PEERCOIN, NUBITS, REDDCOIN)) {
             maybeParse();
             return inputs.size() > 0 && (!inputs.get(0).isCoinBase()) && outputs.size() >= 2 && outputs.get(0).isNull();
         } else {
@@ -1084,7 +1097,7 @@ public class Transaction extends ChildMessage implements Serializable {
 
     protected void bitcoinSerializeToStream(OutputStream stream, boolean includeExtensions) throws IOException {
         uint32ToByteStreamLE(version, stream);
-        if (Networks.isFamily(params, PEERCOIN) && includeExtensions)
+        if (Networks.isFamily(params, PEERCOIN, NUBITS) && includeExtensions)
             uint32ToByteStreamLE(txTime, stream);
         stream.write(new VarInt(inputs.size()).encode());
         for (TransactionInput in : inputs)
@@ -1095,6 +1108,8 @@ public class Transaction extends ChildMessage implements Serializable {
         uint32ToByteStreamLE(lockTime, stream);
         if (Networks.isFamily(params, REDDCOIN) && version > 1 && includeExtensions)
             uint32ToByteStreamLE(txTime, stream);
+        if (Networks.isFamily(params, NUBITS) && includeExtensions)
+            stream.write(txTokenId);
     }
 
     /**
@@ -1128,6 +1143,10 @@ public class Transaction extends ChildMessage implements Serializable {
         return version;
     }
 
+    public void setVersion(long version) {
+        this.version = version;
+    }
+
     public long getTime() {
         maybeParse();
         return txTime;
@@ -1135,6 +1154,15 @@ public class Transaction extends ChildMessage implements Serializable {
 
     public void setTime(long time) {
         this.txTime = time;
+    }
+
+    public byte getTokenId() {
+        maybeParse();
+        return txTokenId;
+    }
+
+    public void setTokenId(byte tokenId) {
+        this.txTokenId = tokenId;
     }
 
     /** Returns an unmodifiable view of all inputs. */

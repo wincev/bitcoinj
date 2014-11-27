@@ -76,6 +76,7 @@ public abstract class NetworkParameters implements Serializable {
     protected int targetTimespan;
     protected byte[] alertSigningKey;
     protected int transactionVersion = 1;
+    protected byte tokenId;
 
     /**
      * See getId(). This may be null for old deserialized wallets. In that case we derive it heuristically
@@ -352,5 +353,12 @@ public abstract class NetworkParameters implements Serializable {
      */
     public int getTransactionVersion() {
         return transactionVersion;
+    }
+
+    /**
+     * Used for various blockchain assets
+     */
+    public byte getTokenId() {
+        return tokenId;
     }
 }

@@ -34,10 +34,12 @@ public class Networks {
     public enum Family {
         BITCOIN,
         PEERCOIN,
-        REDDCOIN;
+        NUBITS,
+        REDDCOIN
     }
 
     private static final Pattern peercoinFamily = Pattern.compile(".*(peercoin).*");
+    private static final Pattern nubitsFamily = Pattern.compile(".*(nubits|nushares).*");
     private static final Pattern reddcoinFamily = Pattern.compile(".*(reddcoin).*");
 
     /** Registered networks */
@@ -79,6 +81,11 @@ public class Networks {
         return networkFamily == family1 || networkFamily == family2;
     }
 
+    public static boolean isFamily(NetworkParameters network, Family family1, Family family2, Family family3) {
+        Family networkFamily = getFamily(network);
+        return networkFamily == family1 || networkFamily == family2 || networkFamily == family3;
+    }
+
     public static Family getFamily(NetworkParameters network) {
         if (network == null || network.getId() == null) {
             return Family.BITCOIN; // default is Bitcoin
@@ -86,6 +93,8 @@ public class Networks {
 
         if (peercoinFamily.matcher(network.getId()).matches()) {
             return Family.PEERCOIN;
+        } else if (nubitsFamily.matcher(network.getId()).matches()) {
+            return Family.NUBITS;
         } else if (reddcoinFamily.matcher(network.getId()).matches()) {
             return Family.REDDCOIN;
         } else {

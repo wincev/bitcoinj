@@ -29,12 +29,18 @@ public class NetworksTests {
                 id = "peercoin.main";
             }
         }
-//        class NubitsDummy extends MainNetParams {
-//            NubitsDummy() {
-//                super();
-//                id = "nubits.main";
-//            }
-//        }
+        class NubitsDummy extends MainNetParams {
+            NubitsDummy() {
+                super();
+                id = "nubits.main";
+            }
+        }
+        class NusharesDummy extends MainNetParams {
+            NusharesDummy() {
+                super();
+                id = "nushares.main";
+            }
+        }
         class ReddcoinDummy extends MainNetParams {
             ReddcoinDummy() {
                 super();
@@ -43,7 +49,8 @@ public class NetworksTests {
         }
 
         assertEquals(Networks.Family.PEERCOIN, Networks.getFamily(new PeercoinDummy()));
-//        assertEquals(Networks.Family.PEERCOIN, Networks.getFamily(new NubitsDummy()));
+        assertEquals(Networks.Family.NUBITS, Networks.getFamily(new NubitsDummy()));
+        assertEquals(Networks.Family.NUBITS, Networks.getFamily(new NusharesDummy()));
         assertEquals(Networks.Family.BITCOIN, Networks.getFamily(MainNetParams.get()));
         assertEquals(Networks.Family.REDDCOIN, Networks.getFamily(new ReddcoinDummy()));
     }
