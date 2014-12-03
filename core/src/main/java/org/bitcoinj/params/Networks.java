@@ -35,12 +35,14 @@ public class Networks {
         BITCOIN,
         PEERCOIN,
         NUBITS,
+        BLACKCOIN,
         REDDCOIN
     }
 
     private static final Pattern peercoinFamily = Pattern.compile(".*(peercoin).*");
     private static final Pattern nubitsFamily = Pattern.compile(".*(nubits|nushares).*");
     private static final Pattern reddcoinFamily = Pattern.compile(".*(reddcoin).*");
+    private static final Pattern blackcoinFamily = Pattern.compile(".*(blackcoin).*");
 
     /** Registered networks */
     private static Set<NetworkParameters> networks = ImmutableSet.of(TestNet3Params.get(), MainNetParams.get());
@@ -86,6 +88,11 @@ public class Networks {
         return networkFamily == family1 || networkFamily == family2 || networkFamily == family3;
     }
 
+    public static boolean isFamily(NetworkParameters network, Family family1, Family family2, Family family3, Family family4) {
+        Family networkFamily = getFamily(network);
+        return networkFamily == family1 || networkFamily == family2 || networkFamily == family3 || networkFamily == family4;
+    }
+
     public static Family getFamily(NetworkParameters network) {
         if (network == null || network.getId() == null) {
             return Family.BITCOIN; // default is Bitcoin
@@ -95,6 +102,8 @@ public class Networks {
             return Family.PEERCOIN;
         } else if (nubitsFamily.matcher(network.getId()).matches()) {
             return Family.NUBITS;
+        } else if (blackcoinFamily.matcher(network.getId()).matches()) {
+            return Family.BLACKCOIN;
         } else if (reddcoinFamily.matcher(network.getId()).matches()) {
             return Family.REDDCOIN;
         } else {
