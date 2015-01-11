@@ -267,7 +267,7 @@ public class Transaction extends ChildMessage implements Serializable {
      * Calculates the sum of the outputs that are sending coins to a key in the wallet. The flag controls whether to
      * include spent outputs or not.
      */
-    Coin getValueSentToMe(TransactionBag transactionBag, boolean includeSpent) {
+    public Coin getValueSentToMe(TransactionBag transactionBag, boolean includeSpent) {
         maybeParse();
         // This is tested in WalletTest.
         Coin v = Coin.ZERO;
