@@ -34,11 +34,11 @@ public class Networks {
     public enum Family {
         BITCOIN,
         RUBYCOIN,
-	CANNACOIN,
-	BLACKCOIN,
-	REDDCOIN,
-	PEERCOIN,
-	NUBITS
+        CANNACOIN,
+        BLACKCOIN,
+        REDDCOIN,
+        PEERCOIN,
+        NUBITS
     }
 
     private static final Pattern cannacoinFamily = Pattern.compile(".*(cannacoin).*");
@@ -118,13 +118,13 @@ public class Networks {
             return Family.CANNACOIN;
         } else if (blackcoinFamily.matcher(network.getId()).matches()) {
             return Family.BLACKCOIN;
-	} else if (reddcoinFamily.matcher(network.getId()).matches()) {
+        } else if (reddcoinFamily.matcher(network.getId()).matches()) {
             return Family.REDDCOIN;
         } else if (peercoinFamily.matcher(network.getId()).matches()) {
-	   return Family.PEERCOIN;
-	} else if (nubitsFamily.matcher(network.getId()).matches()) {
-	  return Family.NUBITS;
-	} else {
+            return Family.PEERCOIN;
+        } else if (nubitsFamily.matcher(network.getId()).matches()) {
+            return Family.NUBITS;
+        } else {
             return Family.BITCOIN; // everything else is Bitcoin
         }
     }

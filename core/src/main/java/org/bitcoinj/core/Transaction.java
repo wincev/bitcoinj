@@ -190,13 +190,13 @@ public class Transaction extends ChildMessage implements Serializable {
         length = 8; // 8 for std fields
         Networks.Family txFamily = Networks.getFamily(params);
         if (txFamily == PEERCOIN || txFamily == NUBITS || (txFamily == CANNACOIN && version > 1) ||
-	    txFamily == RUBYCOIN || txFamily == BLACKCOIN || (txFamily == REDDCOIN && version > 1)) {
+            txFamily == RUBYCOIN || txFamily == BLACKCOIN || (txFamily == REDDCOIN && version > 1)) {
             txTime = new Date().getTime() / 1000; // time is in seconds
             length += 4;
         }
-	if (txFamily == NUBITS) {
-	    txTokenId = params.getTokenId();
-	}
+        if (txFamily == NUBITS) {
+            txTokenId = params.getTokenId();
+        }
     }
 
     /**
@@ -570,8 +570,8 @@ public class Transaction extends ChildMessage implements Serializable {
         if (Networks.isFamily(params, CANNACOIN, REDDCOIN) && version > 1)
             cursor += 4; // time (uint32)
 
-	if (Networks.isFamily(params, NUBITS))
-	    cursor += 1; // token id
+        if (Networks.isFamily(params, NUBITS))
+            cursor += 1; // token id
 
         return cursor - offset;
     }
@@ -622,10 +622,10 @@ public class Transaction extends ChildMessage implements Serializable {
             optimalEncodingMessageSize = +4;
         }
 
-	if (Networks.isFamily(params, NUBITS)) {
-	    txTokenId = readBytes(1)[0];
-	    optimalEncodingMessageSize++;
-	}
+        if (Networks.isFamily(params, NUBITS)) {
+            txTokenId = readBytes(1)[0];
+            optimalEncodingMessageSize++;
+        }
 
         length = cursor - offset;
     }
