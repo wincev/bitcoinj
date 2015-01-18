@@ -35,8 +35,8 @@ import java.util.Arrays;
 
 import static com.google.common.base.Preconditions.*;
 import static com.google.common.base.Preconditions.checkState;
-import static org.bitcoinj.params.Networks.Family.PEERCOIN;
-import static org.bitcoinj.params.Networks.Family.REDDCOIN;
+import static org.bitcoinj.params.Networks.Family.RUBYCOIN;
+import static org.bitcoinj.params.Networks.Family.CANNACOIN;
 
 /**
  * A TransactionOutput message contains a scriptPubKey that controls who is able to spend its value. It is a sub-part
