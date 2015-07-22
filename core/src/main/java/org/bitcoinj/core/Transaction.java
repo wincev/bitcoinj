@@ -108,6 +108,7 @@ public class Transaction extends ChildMessage implements Serializable {
     private long version;
     private long txTime;
     private byte txTokenId;
+    private byte[] extraBytes;
     private ArrayList<TransactionInput> inputs;
     private ArrayList<TransactionOutput> outputs;
 
@@ -184,7 +185,7 @@ public class Transaction extends ChildMessage implements Serializable {
         // We don't initialize appearsIn deliberately as it's only useful for transactions stored in the wallet.
         length = 8; // 8 for std fields
         Networks.Family txFamily = Networks.getFamily(params);
-        if (txFamily == PEERCOIN || txFamily == NUBITS || (txFamily == REDDCOIN && version > 1)) {
+        if (txFamily == PEERCOIN || txFamily == NUBITS || (txFamily == REDDCOIN && version > 1) || txFamily == VPNCOIN) {
             txTime = new Date().getTime() / 1000; // time is in seconds
             length += 4;
         }
@@ -528,7 +529,7 @@ public class Transaction extends ChildMessage implements Serializable {
         // jump past version (uint32)
         int cursor = offset + 4;
 
-        if (Networks.isFamily(params, PEERCOIN, NUBITS))
+        if (Networks.isFamily(params, PEERCOIN, NUBITS, VPNCOIN))
             cursor += 4; // time (uint32)
 
         int i;
@@ -567,6 +568,13 @@ public class Transaction extends ChildMessage implements Serializable {
         if (Networks.isFamily(params, NUBITS))
             cursor += 1; // token id
 
+        if (Networks.isFamily(params, VPNCOIN)) {
+            if (extraBytes == null)
+                cursor += 1; // empty message
+            else
+                cursor += extraBytes.length; // extra message bytes
+        }
+
         return cursor - offset;
     }
 
@@ -581,7 +589,7 @@ public class Transaction extends ChildMessage implements Serializable {
         version = readUint32();
         optimalEncodingMessageSize = 4;
 
-        if (Networks.isFamily(params, PEERCOIN, NUBITS)) {
+        if (Networks.isFamily(params, PEERCOIN, NUBITS, VPNCOIN)) {
             txTime = readUint32();
             optimalEncodingMessageSize = +4;
         }
@@ -621,6 +629,16 @@ public class Transaction extends ChildMessage implements Serializable {
             optimalEncodingMessageSize++;
         }
 
+        if (Networks.isFamily(params, VPNCOIN)) {
+            byte[] bytes = readByteArray();
+            if (bytes.length == 0)
+                optimalEncodingMessageSize++;
+            else {
+                extraBytes = bytes;
+                optimalEncodingMessageSize += extraBytes.length;
+            }
+        }
+
         length = cursor - offset;
     }
 
@@ -646,7 +664,7 @@ public class Transaction extends ChildMessage implements Serializable {
     }
 
     public boolean isCoinStake() {
-        if (Networks.isFamily(params, PEERCOIN, NUBITS, REDDCOIN)) {
+        if (Networks.isFamily(params, PEERCOIN, NUBITS, REDDCOIN, VPNCOIN)) {
             maybeParse();
             return inputs.size() > 0 && (!inputs.get(0).isCoinBase()) && outputs.size() >= 2 && outputs.get(0).isNull();
         } else {
@@ -1095,7 +1113,7 @@ public class Transaction extends ChildMessage implements Serializable {
 
     protected void bitcoinSerializeToStream(OutputStream stream, boolean includeExtensions) throws IOException {
         uint32ToByteStreamLE(version, stream);
-        if (Networks.isFamily(params, PEERCOIN, NUBITS) && includeExtensions)
+        if (Networks.isFamily(params, PEERCOIN, NUBITS, VPNCOIN) && includeExtensions)
             uint32ToByteStreamLE(txTime, stream);
         stream.write(new VarInt(inputs.size()).encode());
         for (TransactionInput in : inputs)
@@ -1108,6 +1126,14 @@ public class Transaction extends ChildMessage implements Serializable {
             uint32ToByteStreamLE(txTime, stream);
         if (Networks.isFamily(params, NUBITS) && includeExtensions)
             stream.write(txTokenId);
+        if (Networks.isFamily(params, VPNCOIN) && includeExtensions) {
+            if (extraBytes == null)
+                stream.write(new VarInt(0).encode());
+            else {
+                stream.write(new VarInt(extraBytes.length).encode());
+                stream.write(extraBytes);
+            }
+        }
     }
 
     /**
