@@ -743,6 +743,7 @@ public class ECKey implements EncryptableItem, Serializable {
         return signMessage(message, null);
     }
 
+
     /**
      * Signs a text message using the standard Bitcoin messaging signing format and returns the signature as a base64
      * encoded string.
@@ -751,7 +752,18 @@ public class ECKey implements EncryptableItem, Serializable {
      * @throws KeyCrypterException if this ECKey is encrypted and no AESKey is provided or it does not decrypt the ECKey.
      */
     public String signMessage(String message, @Nullable KeyParameter aesKey) throws KeyCrypterException {
-        byte[] data = Utils.formatMessageForSigning(message);
+        return signMessage(Utils.BITCOIN_SIGNED_MESSAGE_HEADER_BYTES, message, aesKey);
+    }
+
+    /**
+     * Signs a text message using a generic messaging signing format and returns the signature as a base64
+     * encoded string.
+     *
+     * @throws IllegalStateException if this ECKey does not have the private part.
+     * @throws KeyCrypterException if this ECKey is encrypted and no AESKey is provided or it does not decrypt the ECKey.
+     */
+    public String signMessage(byte[] headerBytes, String message, @Nullable KeyParameter aesKey) throws KeyCrypterException {
+        byte[] data = Utils.formatMessageForSigning(headerBytes, message);
         Sha256Hash hash = Sha256Hash.createDouble(data);
         ECDSASignature sig = sign(hash, aesKey);
         // Now we have to work backwards to figure out the recId needed to recover the signature.

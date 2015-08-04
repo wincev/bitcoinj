@@ -481,15 +481,26 @@ public class Utils {
     }
 
     /**
+     * <p>Use the {@link #formatMessageForSigning(byte[], String)} for generic signing</p>
+     *
      * <p>Given a textual message, returns a byte buffer formatted as follows:</p>
      *
      * <tt><p>[24] "Bitcoin Signed Message:\n" [message.length as a varint] message</p></tt>
      */
     public static byte[] formatMessageForSigning(String message) {
+        return formatMessageForSigning(BITCOIN_SIGNED_MESSAGE_HEADER_BYTES, message);
+    }
+
+    /**
+     * <p>Given a textual message, returns a byte buffer formatted as follows:</p>
+     *
+     * <tt><p>[24] headerBytes [message.length as a varint] message</p></tt>
+     */
+    public static byte[] formatMessageForSigning(byte[] headerBytes, String message) {
         try {
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            bos.write(BITCOIN_SIGNED_MESSAGE_HEADER_BYTES.length);
-            bos.write(BITCOIN_SIGNED_MESSAGE_HEADER_BYTES);
+            bos.write(headerBytes.length);
+            bos.write(headerBytes);
             byte[] messageBytes = message.getBytes(Charsets.UTF_8);
             VarInt size = new VarInt(messageBytes.length);
             bos.write(size.encode());
