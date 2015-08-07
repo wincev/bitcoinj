@@ -192,6 +192,9 @@ public class Transaction extends ChildMessage implements Serializable {
         if (txFamily == NUBITS) {
             txTokenId = params.getTokenId();
         }
+        if (txFamily == VPNCOIN) {
+            extraBytes = new byte[0];
+        }
     }
 
     /**
@@ -569,7 +572,7 @@ public class Transaction extends ChildMessage implements Serializable {
             cursor += 1; // token id
 
         if (Networks.isFamily(params, VPNCOIN)) {
-            if (extraBytes == null)
+            if (extraBytes == null || extraBytes.length == 0)
                 cursor += 1; // empty message
             else
                 cursor += extraBytes.length; // extra message bytes
@@ -631,9 +634,10 @@ public class Transaction extends ChildMessage implements Serializable {
 
         if (Networks.isFamily(params, VPNCOIN)) {
             byte[] bytes = readByteArray();
-            if (bytes.length == 0)
+            if (bytes.length == 0) {
+                extraBytes = new byte[0];
                 optimalEncodingMessageSize++;
-            else {
+            } else {
                 extraBytes = bytes;
                 optimalEncodingMessageSize += extraBytes.length;
             }
@@ -1127,7 +1131,7 @@ public class Transaction extends ChildMessage implements Serializable {
         if (Networks.isFamily(params, NUBITS) && includeExtensions)
             stream.write(txTokenId);
         if (Networks.isFamily(params, VPNCOIN) && includeExtensions) {
-            if (extraBytes == null)
+            if (extraBytes == null || extraBytes.length == 0)
                 stream.write(new VarInt(0).encode());
             else {
                 stream.write(new VarInt(extraBytes.length).encode());
@@ -1187,6 +1191,15 @@ public class Transaction extends ChildMessage implements Serializable {
 
     public void setTokenId(byte tokenId) {
         this.txTokenId = tokenId;
+    }
+
+    public byte[] getExtraBytes() {
+        maybeParse();
+        return extraBytes;
+    }
+
+    public void setExtraBytes(byte[] extraBytes) {
+        this.extraBytes = extraBytes;
     }
 
     /** Returns an unmodifiable view of all inputs. */
