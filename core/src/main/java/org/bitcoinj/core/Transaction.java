@@ -570,10 +570,8 @@ public class Transaction extends ChildMessage implements Serializable {
             cursor += 1; // token id
 
         if (Networks.isFamily(params, VPNCOIN)) {
-            if (extraBytes == null || extraBytes.length == 0)
-                cursor += 1; // empty message
-            else
-                cursor += extraBytes.length; // extra message bytes
+            varint = new VarInt(buf, cursor);
+            cursor += varint.value + varint.getOriginalSizeInBytes();
         }
 
         return cursor - offset;
@@ -631,14 +629,9 @@ public class Transaction extends ChildMessage implements Serializable {
         }
 
         if (Networks.isFamily(params, VPNCOIN)) {
-            byte[] bytes = readByteArray();
-            if (bytes.length == 0) {
-                extraBytes = new byte[0];
-                optimalEncodingMessageSize++;
-            } else {
-                extraBytes = bytes;
-                optimalEncodingMessageSize += extraBytes.length;
-            }
+            int extraBytesLength = (int) readVarInt();
+            extraBytes = readBytes(extraBytesLength);
+            optimalEncodingMessageSize += VarInt.sizeOf(extraBytesLength) + extraBytesLength;
         }
 
         length = cursor - offset;
