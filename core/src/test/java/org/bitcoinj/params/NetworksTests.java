@@ -48,6 +48,7 @@ public class NetworksTests {
         ReddcoinDummy() {
             super();
             family = "reddcoin";
+            transactionVersion = 2;
         }
     }
     class BlackcoinDummy extends MainNetParams {
@@ -62,6 +63,13 @@ public class NetworksTests {
             family = "vpncoin";
         }
     }
+    class ClamsDummy extends MainNetParams {
+        ClamsDummy() {
+            super();
+            family = "clams";
+            transactionVersion = 2;
+        }
+    }
 
     @Test
     public void networkFamily() throws Exception {
@@ -72,6 +80,7 @@ public class NetworksTests {
         assertEquals(Networks.Family.BITCOIN, Networks.getFamily(MainNetParams.get()));
         assertEquals(Networks.Family.REDDCOIN, Networks.getFamily(new ReddcoinDummy()));
         assertEquals(Networks.Family.VPNCOIN, Networks.getFamily(new VpncoinDummy()));
+        assertEquals(Networks.Family.CLAMS, Networks.getFamily(new ClamsDummy()));
     }
 
     @Test
@@ -89,9 +98,9 @@ public class NetworksTests {
         assertTxEquals(tx, "0100000099999999000100e1f505000000001976a914000000000000000000000000000000000000000088ac0000000053");
 
         tx = makeTx(new ReddcoinDummy());
-        assertTxEquals(tx, "01000000000100e1f505000000001976a914000000000000000000000000000000000000000088ac00000000");
-        tx.setVersion(2);
         assertTxEquals(tx, "02000000000100e1f505000000001976a914000000000000000000000000000000000000000088ac0000000099999999");
+        tx.setVersion(1);
+        assertTxEquals(tx, "01000000000100e1f505000000001976a914000000000000000000000000000000000000000088ac00000000");
 
         tx = makeTx(new BlackcoinDummy());
         assertTxEquals(tx, "0100000099999999000100e1f505000000001976a914000000000000000000000000000000000000000088ac00000000");
@@ -99,6 +108,13 @@ public class NetworksTests {
         tx = makeTx(new VpncoinDummy());
         assertTxEquals(tx, "0100000099999999000100e1f505000000001976a914000000000000000000000000000000000000000088ac0000000000");
         tx = new Transaction(new VpncoinDummy(), Hex.decode("0100000099999999000100e1f505000000001976a914000000000000000000000000000000000000000088ac00000000030a0b0c"));
+        assertEquals("db3259e628ecf946ab2015cca6b668d701d00e29b8bb2028fb40e40de4debabd", tx.getHashAsString());
+
+        tx = makeTx(new ClamsDummy());
+        assertTxEquals(tx, "0200000099999999000100e1f505000000001976a914000000000000000000000000000000000000000088ac0000000000");
+        tx.setVersion(1);
+        assertTxEquals(tx, "0100000099999999000100e1f505000000001976a914000000000000000000000000000000000000000088ac00000000");
+        tx = new Transaction(new ClamsDummy(), Hex.decode("0200000099999999000100e1f505000000001976a914000000000000000000000000000000000000000088ac00000000030a0b0c"));
         assertEquals("db3259e628ecf946ab2015cca6b668d701d00e29b8bb2028fb40e40de4debabd", tx.getHashAsString());
     }
 
