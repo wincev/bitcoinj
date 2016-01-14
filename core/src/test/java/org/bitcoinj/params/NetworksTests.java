@@ -70,6 +70,13 @@ public class NetworksTests {
             transactionVersion = 2;
         }
     }
+    class SolarcoinDummy extends MainNetParams {
+        SolarcoinDummy() {
+            super();
+            family = "solarcoin";
+            transactionVersion = 3;
+        }
+    }
 
     @Test
     public void networkFamily() throws Exception {
@@ -81,6 +88,7 @@ public class NetworksTests {
         assertEquals(Networks.Family.REDDCOIN, Networks.getFamily(new ReddcoinDummy()));
         assertEquals(Networks.Family.VPNCOIN, Networks.getFamily(new VpncoinDummy()));
         assertEquals(Networks.Family.CLAMS, Networks.getFamily(new ClamsDummy()));
+        assertEquals(Networks.Family.SOLARCOIN, Networks.getFamily(new SolarcoinDummy()));
     }
 
     @Test
@@ -116,6 +124,15 @@ public class NetworksTests {
         assertTxEquals(tx, "0100000099999999000100e1f505000000001976a914000000000000000000000000000000000000000088ac00000000");
         tx = new Transaction(new ClamsDummy(), Hex.decode("0200000099999999000100e1f505000000001976a914000000000000000000000000000000000000000088ac00000000030a0b0c"));
         assertEquals("db3259e628ecf946ab2015cca6b668d701d00e29b8bb2028fb40e40de4debabd", tx.getHashAsString());
+
+        tx = makeTx(new SolarcoinDummy());
+        assertTxEquals(tx, "03000000000100e1f505000000001976a914000000000000000000000000000000000000000088ac0000000000");
+        tx.setVersion(2);
+        assertTxEquals(tx, "02000000000100e1f505000000001976a914000000000000000000000000000000000000000088ac00000000");
+        tx.setVersion(1);
+        assertTxEquals(tx, "01000000000100e1f505000000001976a914000000000000000000000000000000000000000088ac00000000");
+        tx = new Transaction(new SolarcoinDummy(), Hex.decode("03000000000100e1f505000000001976a914000000000000000000000000000000000000000088ac00000000030a0b0c"));
+        assertEquals("0c75ddb96f975974a28420e8d9302dc0b245be0101d5e865f7e297c662ca7f3b", tx.getHashAsString());
     }
 
     private void assertTxEquals(Transaction tx, String expectedTx) {

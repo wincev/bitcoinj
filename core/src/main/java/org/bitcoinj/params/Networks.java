@@ -37,7 +37,8 @@ public class Networks {
         PEERCOIN,
         NUBITS,
         VPNCOIN,
-        CLAMS
+        CLAMS,
+        SOLARCOIN
     }
 
     private static final Pattern bitcoinFamily = Pattern.compile(".*(bitcoin).*");
@@ -46,6 +47,7 @@ public class Networks {
     private static final Pattern nubitsFamily = Pattern.compile(".*(nubits).*");
     private static final Pattern vpncoinFamily = Pattern.compile(".*(vpncoin).*");
     private static final Pattern clamsFamily = Pattern.compile(".*(clams).*");
+    private static final Pattern solarcoinFamily = Pattern.compile(".*(solarcoin).*");
 
     /** Registered networks */
     private static Set<NetworkParameters> networks = ImmutableSet.of(TestNet3Params.get(), MainNetParams.get());
@@ -123,6 +125,8 @@ public class Networks {
             return Family.VPNCOIN;
         } else if (clamsFamily.matcher(network.getFamilyString()).matches()) {
             return Family.CLAMS;
+        } else if (solarcoinFamily.matcher(network.getFamilyString()).matches()) {
+            return Family.SOLARCOIN;
         } else {
             return Family.BITCOIN; // everything else is Bitcoin
         }

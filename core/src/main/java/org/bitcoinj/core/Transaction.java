@@ -191,7 +191,7 @@ public class Transaction extends ChildMessage implements Serializable {
         if (txFamily == NUBITS) {
             txTokenId = params.getTokenId();
         }
-        if (txFamily == VPNCOIN || (txFamily == CLAMS && version > 1)) {
+        if (txFamily == VPNCOIN || ((txFamily == CLAMS || txFamily == SOLARCOIN) && version > 1)) {
             extraBytes = new byte[0];
         }
     }
@@ -570,7 +570,7 @@ public class Transaction extends ChildMessage implements Serializable {
         if (isFamily(params, NUBITS))
             cursor += 1; // token id
 
-        if (isFamily(params, VPNCOIN) || (isFamily(params, CLAMS) && version > 1)) {
+        if (isFamily(params, VPNCOIN) || (isFamily(params, CLAMS, SOLARCOIN) && version > 1)) {
             varint = new VarInt(buf, cursor);
             cursor += varint.value + varint.getOriginalSizeInBytes();
         }
@@ -629,7 +629,7 @@ public class Transaction extends ChildMessage implements Serializable {
             optimalEncodingMessageSize++;
         }
 
-        if (isFamily(params, VPNCOIN) || (isFamily(params, CLAMS) && version > 1)) {
+        if (isFamily(params, VPNCOIN) || (isFamily(params, CLAMS, SOLARCOIN) && version > 1)) {
             int extraBytesLength = (int) readVarInt();
             extraBytes = readBytes(extraBytesLength);
             optimalEncodingMessageSize += VarInt.sizeOf(extraBytesLength) + extraBytesLength;
@@ -660,7 +660,7 @@ public class Transaction extends ChildMessage implements Serializable {
     }
 
     public boolean isCoinStake() {
-        if (isFamily(params, PEERCOIN, NUBITS, REDDCOIN, VPNCOIN, CLAMS)) {
+        if (isFamily(params, PEERCOIN, NUBITS, REDDCOIN, VPNCOIN, CLAMS, SOLARCOIN)) {
             maybeParse();
             return inputs.size() > 0 && (!inputs.get(0).isCoinBase()) && outputs.size() >= 2 && outputs.get(0).isNull();
         } else {
@@ -1125,7 +1125,7 @@ public class Transaction extends ChildMessage implements Serializable {
             uint32ToByteStreamLE(txTime, stream);
         if (isFamily(params, NUBITS) && includeExtensions)
             stream.write(txTokenId);
-        if ((isFamily(params, VPNCOIN) || (isFamily(params, CLAMS) && version > 1)) && includeExtensions) {
+        if ((isFamily(params, VPNCOIN) || (isFamily(params, CLAMS, SOLARCOIN) && version > 1)) && includeExtensions) {
             if (extraBytes == null || extraBytes.length == 0)
                 stream.write(new VarInt(0).encode());
             else {
