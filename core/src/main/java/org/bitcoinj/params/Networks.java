@@ -38,7 +38,8 @@ public class Networks {
         NUBITS,
         VPNCOIN,
         CLAMS,
-        SOLARCOIN
+        SOLARCOIN,
+        WORLDLEADCURRENCY
     }
 
     private static final Pattern bitcoinFamily = Pattern.compile(".*(bitcoin).*");
@@ -48,6 +49,7 @@ public class Networks {
     private static final Pattern vpncoinFamily = Pattern.compile(".*(vpncoin).*");
     private static final Pattern clamsFamily = Pattern.compile(".*(clams).*");
     private static final Pattern solarcoinFamily = Pattern.compile(".*(solarcoin).*");
+    private static final Pattern worldleadcurrencyFamily = Pattern.compile(".*(worldleadcurrency).*");
 
     /** Registered networks */
     private static Set<NetworkParameters> networks = ImmutableSet.of(TestNet3Params.get(), MainNetParams.get());
@@ -108,6 +110,11 @@ public class Networks {
         return networkFamily == family1 || networkFamily == family2 || networkFamily == family3 || networkFamily == family4 || networkFamily == family5 || networkFamily == family6;
     }
 
+    public static boolean isFamily(NetworkParameters network, Family family1, Family family2, Family family3, Family family4, Family family5, Family family6, Family family7) {
+        Family networkFamily = getFamily(network);
+        return networkFamily == family1 || networkFamily == family2 || networkFamily == family3 || networkFamily == family4 || networkFamily == family5 || networkFamily == family6 || networkFamily == family7;
+    }
+
     public static Family getFamily(NetworkParameters network) {
         if (network == null || network.getFamily() == null) {
             return Family.BITCOIN; // default is Bitcoin
@@ -127,6 +134,8 @@ public class Networks {
             return Family.CLAMS;
         } else if (solarcoinFamily.matcher(network.getFamilyString()).matches()) {
             return Family.SOLARCOIN;
+        } else if (worldleadcurrencyFamily.matcher(network.getFamilyString()).matches()) {
+            return Family.WORLDLEADCURRENCY;
         } else {
             return Family.BITCOIN; // everything else is Bitcoin
         }
