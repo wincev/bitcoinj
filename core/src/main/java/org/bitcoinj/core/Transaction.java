@@ -106,6 +106,7 @@ public class Transaction extends ChildMessage implements Serializable {
     // These are serialized in both bitcoin and java serialization.
     private long version;
     private long txTime;
+    private long txRefHeight;
     private byte txTokenId;
     private byte[] extraBytes;
     private ArrayList<TransactionInput> inputs;
@@ -193,6 +194,11 @@ public class Transaction extends ChildMessage implements Serializable {
         }
         if (txFamily == VPNCOIN || ((txFamily == CLAMS || txFamily == SOLARCOIN) && version > 1)) {
             extraBytes = new byte[0];
+        }
+        if (txFamily == WORLDLEADCURRENCY) {
+            txRefHeight = new AbstractBlockChain().getBestChainHeight();
+            length += 4;
+            Version = 2;
         }
     }
 
@@ -591,6 +597,11 @@ public class Transaction extends ChildMessage implements Serializable {
 
         if (isFamily(params, PEERCOIN, NUBITS, VPNCOIN, CLAMS)) {
             txTime = readUint32();
+            optimalEncodingMessageSize = +4;
+        }
+
+        if (isFamily(params, WORLDLEADCURRENCY)) {
+            txRefHeight = readUint32();
             optimalEncodingMessageSize = +4;
         }
 
@@ -1114,6 +1125,8 @@ public class Transaction extends ChildMessage implements Serializable {
         uint32ToByteStreamLE(version, stream);
         if (isFamily(params, PEERCOIN, NUBITS, VPNCOIN, CLAMS) && includeExtensions)
             uint32ToByteStreamLE(txTime, stream);
+        if (isFamily(params, WORLDLEADCURRENCY) && includeExtensions)
+            uint32ToByteStreamLE(txRefHeight, stream);
         stream.write(new VarInt(inputs.size()).encode());
         for (TransactionInput in : inputs)
             in.bitcoinSerialize(stream);
@@ -1177,6 +1190,15 @@ public class Transaction extends ChildMessage implements Serializable {
 
     public void setTime(long time) {
         this.txTime = time;
+    }
+
+    public long getRefHeight() {
+        maybeParse();
+        return txRefHeight;
+    }
+
+    public void setRefHeight(long refHight) {
+        this.txRefHeight = refHeight;
     }
 
     public byte getTokenId() {
