@@ -198,6 +198,11 @@ public class TransactionOutPoint extends ChildMessage implements Serializable {
         this.hash = hash;
     }
 
+    public long getRefHeight() {
+        maybeParse();
+        return fromTx.getRefHeight();
+    }
+
     public long getIndex() {
         maybeParse();
         return index;
