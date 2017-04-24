@@ -39,7 +39,7 @@ public class Networks {
         VPNCOIN,
         CLAMS,
         SOLARCOIN,
-        WORLDLEADCURRENCY
+        FREICOIN
     }
 
     private static final Pattern bitcoinFamily = Pattern.compile(".*(bitcoin).*");
@@ -49,7 +49,7 @@ public class Networks {
     private static final Pattern vpncoinFamily = Pattern.compile(".*(vpncoin).*");
     private static final Pattern clamsFamily = Pattern.compile(".*(clams).*");
     private static final Pattern solarcoinFamily = Pattern.compile(".*(solarcoin).*");
-    private static final Pattern worldleadcurrencyFamily = Pattern.compile(".*(worldleadcurrency).*");
+    private static final Pattern freicoinFamily = Pattern.compile(".*(freicoin).*");
 
     /** Registered networks */
     private static Set<NetworkParameters> networks = ImmutableSet.of(TestNet3Params.get(), MainNetParams.get());
@@ -135,7 +135,7 @@ public class Networks {
         } else if (solarcoinFamily.matcher(network.getFamilyString()).matches()) {
             return Family.SOLARCOIN;
         } else if (worldleadcurrencyFamily.matcher(network.getFamilyString()).matches()) {
-            return Family.WORLDLEADCURRENCY;
+            return Family.FREICOIN;
         } else {
             return Family.BITCOIN; // everything else is Bitcoin
         }
