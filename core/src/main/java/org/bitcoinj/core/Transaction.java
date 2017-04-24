@@ -196,7 +196,7 @@ public class Transaction extends ChildMessage implements Serializable {
         if (txFamily == VPNCOIN || ((txFamily == CLAMS || txFamily == SOLARCOIN) && version > 1)) {
             extraBytes = new byte[0];
         }
-        if (txFamily == WORLDLEADCURRENCY) {
+        if (txFamily == FREICOIN) {
             txRefHeight = 0;
             length += 4;
             version = 2;
@@ -582,7 +582,7 @@ public class Transaction extends ChildMessage implements Serializable {
             cursor += varint.value + varint.getOriginalSizeInBytes();
         }
 
-        if (isFamily(params, WORLDLEADCURRENCY))
+        if (isFamily(params, FREICOIN))
             cursor += 4; // refHeight (uint32)
 
         return cursor - offset;
@@ -645,7 +645,7 @@ public class Transaction extends ChildMessage implements Serializable {
             optimalEncodingMessageSize += VarInt.sizeOf(extraBytesLength) + extraBytesLength;
         }
 
-        if (isFamily(params, WORLDLEADCURRENCY)) {
+        if (isFamily(params, FREICOIN)) {
             txRefHeight = readUint32();
             optimalEncodingMessageSize = +4;
         }
@@ -1148,7 +1148,7 @@ public class Transaction extends ChildMessage implements Serializable {
                 stream.write(extraBytes);
             }
         }
-        if (isFamily(params, WORLDLEADCURRENCY) && includeExtensions)
+        if (isFamily(params, FREICOIN) && includeExtensions)
             uint32ToByteStreamLE(txRefHeight, stream);
     }
 
